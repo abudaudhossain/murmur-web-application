@@ -1,0 +1,10 @@
+./src/node_modules
+./src/dist
+./server/node_modules
+./server/dist
+src/node_modules
+src/dist
+server/node_modules
+server/dist
+# Ignore all node_modules directories
+node_modules
