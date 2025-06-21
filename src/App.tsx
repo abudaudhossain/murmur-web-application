@@ -1,29 +1,38 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import Home from './pages/Home';
+import Murmur from './pages/Murmur';
+import Follower from './pages/Follower';
+import Profile from './pages/Profile';
+import Login from './pages/Login';
+import PublicLayout from './Layout/PublicLayout';
+import PrivateLayout from './Layout/PrivateLayout';
+import Signup from './pages/Signup';
+import { StoreProvider } from './context/StoreContext';
 
 function App() {
-  const [data, setData] = useState<any>(null)
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.post('/api/postTest')
-        console.log(res.data)
-        setData(res.data)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-    }
-    
-    fetchData()
-  }, [])
-
   return (
-    <div>
-      <h1>Display the data obtained from API here</h1>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </div>
-  )
+    <StoreProvider>
+      <Router>
+        <Routes>
+          {/* Public routes (no navbar) */}
+          <Route element={<PublicLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+
+          </Route>
+
+          {/* Private routes (with navbar/sidebar/footer) */}
+          <Route element={<PrivateLayout />}>
+            <Route path="/" element={<><Home /></>} />
+            <Route path="/me" element={<><Profile /></>} />
+            <Route path="/murmur/me" element={<><Murmur /></>} />
+            <Route path="/followers" element={<><Follower /></>} />
+          </Route>
+        </Routes>
+      </Router>
+    </StoreProvider>
+  );
 }
 
-export default App
+export default App;
