@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Button,
@@ -9,35 +9,50 @@ import {
     ListItemText,
     Typography,
     Divider,
-    ListItemButton,
-    ListItemIcon,
+    CircularProgress
 } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
-import RssFeedIcon from '@mui/icons-material/RssFeed';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import GroupIcon from '@mui/icons-material/Group';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { Link } from 'react-router-dom';
-
-const newUsers = [
-    {
-        name: 'Jane Doe',
-        username: '@janedoe',
-        avatar: 'https://i.pravatar.cc/150?img=1',
-    },
-    {
-        name: 'John Smith',
-        username: '@johnsmith',
-        avatar: 'https://i.pravatar.cc/150?img=2',
-    },
-    {
-        name: 'Alex Kim',
-        username: '@alexkim',
-        avatar: 'https://i.pravatar.cc/150?img=3',
-    },
-];
+import { clientSideAxios } from '../lib/api/axios/clientSideAxios'; // Adjust the import if needed
+import { useStore } from '../context/StoreContext';
 
 export default function RightBar() {
+    const [newUsers, setNewUsers] = useState<any[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const { user } = useStore();
+
+    useEffect(() => {
+        const fetchNewUsers = async () => {
+            try {
+                const res = await clientSideAxios.get('follow/suggest?page=10&limit=5', {
+                    headers: {
+                        Authorization: `Bearer ${user?.accessToken}`
+                    }
+                }); // your endpoint
+                console.log(res.data)
+                setNewUsers(res.data.data);
+            } catch (err) {
+                console.error("Failed to fetch new users", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNewUsers();
+    }, []);
+
+    const handleFollow = async (targetUserId: number) => {
+        try {
+            await clientSideAxios.post(`/follow/${targetUserId}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${user?.accessToken}`,
+                }
+            });
+            setNewUsers(prev => prev.filter(u => u.id !== targetUserId)); // remove after follow (optional)
+        } catch (err) {
+            console.error("Follow failed:", err);
+        }
+    };
+
     return (
         <Box
             component="aside"
@@ -53,14 +68,11 @@ export default function RightBar() {
                 borderRight: '1px solid #ddd',
             }}
         >
-
             <Box
                 sx={{
                     flex: 1,
                     display: { xs: 'none', lg: 'block' },
                     p: 2,
-
-
                 }}
             >
                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
@@ -80,33 +92,46 @@ export default function RightBar() {
                     </Typography>
                 </Box>
             </Box>
+
             <Box sx={{ mt: 4 }}>
                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                     New Users
                 </Typography>
 
-                <List dense>
-                    {newUsers.map((user, index) => (
-                        <ListItem
-                            key={index}
-                            alignItems="flex-start"
-                            secondaryAction={
-                                <Button variant="outlined" size="small" sx={{ textTransform: 'none' }}>
-                                    Follow
-                                </Button>
-                            }
-                        >
-                            <ListItemAvatar>
-                                <Avatar src={user.avatar} alt={user.name} />
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={user.name}
-                                secondary={user.username}
-                                primaryTypographyProps={{ fontWeight: 'medium' }}
-                            />
-                        </ListItem>
-                    ))}
-                </List>
+                {loading ? (
+                    <Box textAlign="center" my={2}>
+                        <CircularProgress size={24} />
+                    </Box>
+                ) : (
+                    <List dense>
+                        {newUsers.map((user, index) => (
+                            <ListItem
+                                key={user.id}
+                                alignItems="flex-start"
+                                secondaryAction={
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{ textTransform: 'none' }}
+                                        onClick={() => handleFollow(user.id)}
+                                    >
+                                        Follow
+                                    </Button>
+                                }
+                            >
+                                <ListItemAvatar>
+                                    <Avatar src={user.avatar} alt={user.name} />
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary={user.name}
+                                    secondary={`@${user.username}`}
+                                    primaryTypographyProps={{ fontWeight: 'medium' }}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                )}
+
                 <Button
                     variant="contained"
                     color="primary"
@@ -114,9 +139,9 @@ export default function RightBar() {
                     to="/users"
                     fullWidth
                     sx={{ mt: 3, borderRadius: 8, textTransform: 'none', fontWeight: 'bold' }}
-                  >
+                >
                     See More Users
-                  </Button>
+                </Button>
             </Box>
         </Box>
     );

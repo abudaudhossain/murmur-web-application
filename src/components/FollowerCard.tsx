@@ -9,6 +9,9 @@ import {
 } from '@mui/material';
 
 interface FollowerCardProps {
+  id: number,
+  followersCount: number,
+  followingCount: number,
   name: string;
   username: string;
   avatar: string;
@@ -17,16 +20,19 @@ interface FollowerCardProps {
 }
 
 export default function FollowerCard({
+  id,
   name,
   username,
   avatar,
   bio,
   isFollowing = false,
+  followingCount,
+  followersCount
 }: FollowerCardProps) {
-    const onFollowToggle = () => {
-        // Handle follow/unfollow logic here
-        console.log(`${isFollowing ? 'Unfollow' : 'Follow'} ${username}`);
-    };
+  const onFollowToggle = () => {
+    // Handle follow/unfollow logic here
+    console.log(`${isFollowing ? 'Unfollow' : 'Follow'} ${username}`);
+  };
   return (
     <Paper
       elevation={0}
@@ -47,11 +53,12 @@ export default function FollowerCard({
           <Typography variant="body2" color="text.secondary">
             {username}
           </Typography>
-          {bio && (
-            <Typography variant="body2" sx={{ mt: 0.5 }}>
-              {bio}
-            </Typography>
-          )}
+
+          <Typography variant="body2" sx={{ mt: 0.5 }}  color="text.secondary">
+            <span>follower: {followersCount}  </span>
+            <span>following: {followingCount}  </span>
+          </Typography>
+
         </Box>
 
         <Button

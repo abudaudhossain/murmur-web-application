@@ -38,7 +38,7 @@ clientSideAxios.interceptors.response.use(
     if (error.response?.status === 401) {
 
       window.location.href = "/login"; // Redirect to login page
-
+      window.localStorage.removeItem('user')
     }
 
     return Promise.reject(error);

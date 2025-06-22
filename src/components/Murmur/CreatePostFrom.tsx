@@ -11,11 +11,14 @@ import {
 } from '@mui/material';
 import ImageIcon from '@mui/icons-material/Image';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import { clientSideAxios } from '../../lib/api/axios/clientSideAxios';
+import { useStore } from '../../context/StoreContext';
 
 export default function CreatePostForm() {
   const [content, setContent] = useState('');
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const { user } = useStore();
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -25,19 +28,43 @@ export default function CreatePostForm() {
     }
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     // handle your post logic (send content and file to API)
     console.log({ content, mediaFile });
-    setContent('');
-    setMediaFile(null);
-    setMediaPreview(null);
+    const formData = new FormData();
+    formData.append('content', content);
+    if (mediaFile) {
+      formData.append('media', mediaFile);
+    }
+
+    try {
+      const res = await clientSideAxios.post(
+        'murmurs/create',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${user?.accessToken}`,
+          },
+        }
+      );
+
+      console.log('Post created:', res.data);
+
+      // Optionally: reset UI
+      setContent('');
+      setMediaFile(null);
+      setMediaPreview(null);
+    } catch (error) {
+      console.error('Failed to create post:', error);
+    }
   };
 
   return (
     <Card sx={{ mb: 3 }}>
       <CardContent>
         <Stack direction="row" spacing={2}>
-          <Avatar src="https://i.pravatar.cc/150?img=11" />
+          <Avatar src={user?.avatar} alt={user?.name}/>
           <Box flex={1}>
             <TextField
               fullWidth
