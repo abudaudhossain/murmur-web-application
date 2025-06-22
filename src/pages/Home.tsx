@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import CreatePostForm from '../components/Murmur/CreatePostFrom';
 import MurmurCard from '../components/Murmur/MurmurCard';
+import Timeline from '../components/Timeline';
 
 const samplePosts = [
     {
@@ -51,19 +52,7 @@ export default function Home() {
                     <CreatePostForm />
                 </Box>
 
-                {samplePosts.map((post) => (
-                    <MurmurCard
-                        user={{
-                            name: 'Jane Doe',
-                            username: '@janedoe',
-                            avatar: 'https://i.pravatar.cc/150?img=12',
-                        }}
-                        content={post.content}
-                        media="https://source.unsplash.com/random/600x300"
-                        isVideo={false}
-                    />
-
-                ))}
+                <Timeline />
             </Box>
         </Box>
     );
