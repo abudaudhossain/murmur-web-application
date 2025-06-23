@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 import { Murmur } from './murmur.entity';
 
 @Entity()
@@ -12,6 +12,7 @@ export class Media {
     @Column({ type: 'enum', enum: ['image', 'video'] })
     type: 'image' | 'video';
 
-    @ManyToOne(() => Murmur, murmur => murmur.media, { onDelete: 'CASCADE' })
+    @OneToOne(() => Murmur, murmur => murmur.media, { onDelete: 'CASCADE' })
+    @JoinColumn()
     murmur: Murmur;
 }

@@ -11,7 +11,7 @@ const Timeline = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const { user } = useStore();
-    const LIMIT = 5;
+    const LIMIT = 10;
 
     const fetchPosts = async (pageNumber = 1) => {
         try {

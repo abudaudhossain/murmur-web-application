@@ -11,8 +11,10 @@ import {
     Delete,
     Get,
     Param,
+    UploadedFile,
+    Query,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { MurmurService } from './murmur.service';
@@ -33,33 +35,36 @@ export class MurmurController {
 
 
     @Post('create')
-    @UseInterceptors(FilesInterceptor('media', 5, { storage }))
+    @UseInterceptors(FileInterceptor('media', { storage }))
     async createMurmur(
         @Request() req,
-        @UploadedFiles() files: Express.Multer.File[],
+        @UploadedFile() file: Express.Multer.File,
         @Body('content') content: string,
     ) {
-        console.log('Files received:', files);
-        let media: { url: string, type: 'image' | 'video' }[] = [];
-        if (files || files?.length) {
-            media = files.map(file => ({
+        console.log('Files received:', file);
+        let media: { url: string, type: 'image' | 'video' };
+        if (file) {
+            media = {
                 url: `/uploads/${file.filename}`,
                 type: file.mimetype.includes('video') ? 'video' : 'image',
-            }));
+            };
         }
+
+        console.log(media)
+
 
         const user = await req.user;
         return this.murmurService.createMurmur(content, user.id, media);
     }
 
     @Post('like/:id')
-    async likeMurmur(@Request() req,@Param('id')  murmurId: number) {
+    async likeMurmur(@Request() req, @Param('id') murmurId: number) {
         const user = await req.user;
         return this.murmurService.likeMurmur(murmurId, user.id);
     }
 
     @Delete('unlike/:id')
-    async unlikeMurmur(@Request() req,@Param('id')  murmurId: number) {
+    async unlikeMurmur(@Request() req, @Param('id') murmurId: number) {
         const user = await req.user;
         return this.murmurService.unlikeMurmur(murmurId, user.id);
     }
@@ -71,10 +76,20 @@ export class MurmurController {
     }
 
     @Get("timeline")
-    async getTimeline(@Request() req) {
+    async getTimeline(
+        @Request() req,
+        @Query('page') page: number,
+        @Query('limit') limit: number) {
         const user = await req.user;
-        return this.murmurService.getTimelineMurmur(user.id);
+        if (!page) {
+            page = 1
+        }
+        if (!limit) {
+            limit = 10
+        }
+        return this.murmurService.getTimelineMurmur(user.id, page, limit);
     }
+
 
     @Get('get/:id')
     async getMurmurById(@Req() req) {
@@ -96,9 +111,18 @@ export class MurmurController {
     }
 
     @Get('me')
-    async getMyMurmurs(@Request() req) {
+    async getMyMurmurs(@Request() req,
+        @Query('page') page: number,
+        @Query('limit') limit: number) {
         const user = await req.user;
-        return this.murmurService.meMurmurs(user.id);
+        return this.murmurService.meMurmurs(user.id, page, limit);
+    }
+    @Get('user/:id')
+    async getUserMurmurs(@Request() req,
+        @Query('page') page: number,
+        @Query('limit') limit: number) {
+        const id = parseInt(req.params.id, 10);
+        return this.murmurService.meMurmurs(id, page, limit);
     }
 
 }

@@ -1,8 +1,10 @@
 import { Body, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Not, Repository } from "typeorm";
 import { CreateUserDto } from "src/dto/create-user.dto";
 import { User } from "src/entities/user.entity";
+import { IsNotIn } from "class-validator";
+import { plainToClassFromExist } from "class-transformer";
 
 @Injectable()
 export class UserService {
@@ -78,4 +80,27 @@ export class UserService {
         };
     }
 
+    async getFollowSuggestUser(followingIds: number[], page = 1, limit = 10) {
+        const skip = (page - 1) * limit;
+
+        const whereCondition = followingIds?.length
+            ? { id: Not(In(followingIds)) }
+            : {};
+
+        const [users, total] = await this.userRepository.findAndCount({
+            where: whereCondition,
+            relations: [ 'followers', 'following'],
+            order: { createdAt: 'DESC' }, // sort by createdAt (latest first)
+            skip,
+            take: limit,
+        });
+
+        return {
+            data: plainToClassFromExist(User, users),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
 }

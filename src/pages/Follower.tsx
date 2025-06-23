@@ -14,7 +14,7 @@ const Follower = () => {
   const { user } = useStore();
   const fetchNewUsers = async (pageNumber) => {
     try {
-      const res = await clientSideAxios.get(`follow/followers?page=${pageNumber}&limit=1`, {
+      const res = await clientSideAxios.get(`follow/followers?page=${pageNumber}&limit=10`, {
         headers: {
           Authorization: `Bearer ${user?.accessToken}`
         }

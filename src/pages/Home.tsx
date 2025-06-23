@@ -13,22 +13,6 @@ import CreatePostForm from '../components/Murmur/CreatePostFrom';
 import MurmurCard from '../components/Murmur/MurmurCard';
 import Timeline from '../components/Timeline';
 
-const samplePosts = [
-    {
-        id: 1,
-        user: 'Jane Doe',
-        username: '@janedoe',
-        avatar: 'https://i.pravatar.cc/150?img=1',
-        content: 'Excited to join Murmur! Looking forward to connecting. 🚀',
-    },
-    {
-        id: 2,
-        user: 'John Smith',
-        username: '@johnsmith',
-        avatar: 'https://i.pravatar.cc/150?img=2',
-        content: 'Just published my first Murmur feed update. Let’s gooo! 🔥',
-    },
-];
 
 export default function Home() {
     return (

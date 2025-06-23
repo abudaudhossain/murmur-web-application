@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
 import { Media } from "./media.entity";
 import { Like } from "./like.entity";
@@ -20,8 +20,8 @@ export class Murmur {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
-    @OneToMany(() => Media, media => media.murmur, { cascade: true })
-    media: Media[];
+    @OneToOne(() => Media, media => media.murmur, { cascade: true })
+    media: Media;
 
     @OneToMany(() => Like, like => like.murmur)
     likes: Like[];

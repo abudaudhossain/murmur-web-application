@@ -40,7 +40,7 @@ const LeftBar = () => {
         <ListItemText primary="Feed" />
       </ListItemButton> */}
 
-      <ListItemButton component={Link} to="/murmur/me">
+      <ListItemButton component={Link} to="/me">
         <ListItemIcon>
           <ChatBubbleOutlineIcon />
         </ListItemIcon>

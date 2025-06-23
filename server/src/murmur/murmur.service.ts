@@ -5,7 +5,7 @@ import { Like } from "src/entities/like.entity";
 import { Media } from "src/entities/media.entity";
 import { Murmur } from "src/entities/murmur.entity";
 import { FollowService } from "src/follow/follow.service";
-import { In, Repository } from "typeorm";
+import { In, Not, Repository } from "typeorm";
 
 @Injectable()
 export class MurmurService {
@@ -16,8 +16,8 @@ export class MurmurService {
         private readonly followService: FollowService,
     ) { }
 
-    async createMurmur(content: string, userId: number, mediaInput: { url: string; type: 'image' | 'video' }[]) {
-        if (!content && (!mediaInput || mediaInput.length === 0)) {
+    async createMurmur(content: string, userId: number, mediaInput: { url: string; type: 'image' | 'video' }) {
+        if (!content && (!mediaInput)) {
             throw new NotFoundException('Content or media is required');
         }
         if (!userId) {
@@ -25,7 +25,10 @@ export class MurmurService {
         }
 
         const murmur = this.murmurRepo.create({ content, userId });
-        murmur.media = mediaInput.map(m => this.mediaRepo.create(m));
+        if (mediaInput) {
+
+            murmur.media = this.mediaRepo.create(mediaInput);
+        }
         return await this.murmurRepo.save(murmur);
     }
 
@@ -88,22 +91,34 @@ export class MurmurService {
         return { message: 'Murmur deleted successfully' };
     }
 
-    async meMurmurs(userId: number) {
+    async meMurmurs(userId: number, page = 1, limit = 10) {
         if (!userId) {
             throw new NotFoundException('User ID is required');
         }
-        const murmurs = await this.murmurRepo.find({
-            where: { userId },
+
+        const skip = (page - 1) * limit;
+
+        const whereCondition = { userId }
+        
+        const [murmurs, total] = await this.murmurRepo.findAndCount({
+            where: whereCondition,
             relations: ['media', 'likes', 'user'],
-            order: { createdAt: 'DESC' },
+            order: { createdAt: 'DESC' }, // sort by createdAt (latest first)
+            skip,
+            take: limit,
         });
-        if (!murmurs.length) {
-            throw new NotFoundException('No murmurs found for this user');
-        }
-        return plainToInstance(Murmur, murmurs);
+
+        return {
+            data: plainToInstance(Murmur, murmurs),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+
     }
 
-    async getTimelineMurmur(userId: number) {
+    async getTimelineMurmur(userId: number, page = 1, limit = 10) {
 
         if (!userId) {
             throw new NotFoundException('User ID is required');
@@ -112,14 +127,29 @@ export class MurmurService {
         if (!followingIds || followingIds.length === 0) {
             throw new NotFoundException('No following users found');
         }
-        const murmurs = await this.murmurRepo.find({
-            where: { userId: In([...followingIds, userId]) },
+
+
+        const skip = (page - 1) * limit;
+
+        const whereCondition = followingIds?.length
+            ? { userId: In([...followingIds, userId]) }
+            : {};
+
+        const [murmurs, total] = await this.murmurRepo.findAndCount({
+            where: whereCondition,
             relations: ['media', 'likes', 'user'],
-            order: { createdAt: 'DESC' },
+            order: { createdAt: 'DESC' }, // sort by createdAt (latest first)
+            skip,
+            take: limit,
         });
-        if (!murmurs.length) {
-            throw new NotFoundException('No murmurs found for the following users');
-        }
-        return plainToInstance(Murmur, murmurs);
+
+        return {
+            data: plainToInstance(Murmur, murmurs),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+
     }
 }

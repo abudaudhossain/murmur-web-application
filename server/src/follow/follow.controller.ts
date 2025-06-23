@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Param, UseGuards, Request, Get } from '@nestjs/common';
+import { Controller, Post, Delete, Param, UseGuards, Request, Get, Query } from '@nestjs/common';
 import { FollowService } from './follow.service';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
@@ -20,14 +20,25 @@ export class FollowController {
     }
 
     @Get('followers')
-    async myFollowers(@Request() req) {
+    async myFollowers(@Request() req, @Query('page') page: number,
+        @Query('limit') limit: number) {
         const user = await req.user;
-        return this.followService.getFollowers(user.id);
+        return this.followService.getFollowers(user.id, page, limit);
     }
 
     @Get('following')
-    async myFollowing(@Request() req) {
+    async myFollowing(@Request() req, @Query('page') page: number,
+        @Query('limit') limit: number) {
         const user = await req.user;
-        return this.followService.getFollowing(user.id);
+        return this.followService.getFollowing(user.id, page, limit);
+    }
+
+    @Get("suggest")
+    async mySuggestUser(
+        @Request() req,
+        @Query('page') page: number,
+        @Query('limit') limit: number,) {
+        const user = await req.user;
+        return this.followService.suggestFollowing(user.id, page, limit)
     }
 }
