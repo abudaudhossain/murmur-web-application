@@ -9,6 +9,8 @@ import PublicLayout from './Layout/PublicLayout';
 import PrivateLayout from './Layout/PrivateLayout';
 import Signup from './pages/Signup';
 import { StoreProvider } from './context/StoreContext';
+import Following from './pages/Following';
+import Users from './pages/Users';
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
             <Route path="/me" element={<><Profile /></>} />
             <Route path="/murmur/me" element={<><Murmur /></>} />
             <Route path="/followers" element={<><Follower /></>} />
+            <Route path="/following" element={<><Following /></>} />
+            <Route path="/users" element={<><Users /></>} />
           </Route>
         </Routes>
       </Router>

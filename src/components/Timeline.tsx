@@ -3,9 +3,7 @@ import MurmurCard from '../components/Murmur/MurmurCard';
 import { clientSideAxios } from '../lib/api/axios/clientSideAxios';
 import { useStore } from '../context/StoreContext';
 import {
-
     Button,
-
 } from '@mui/material';
 
 const Timeline = () => {
@@ -32,6 +30,7 @@ const Timeline = () => {
     };
 
     useEffect(() => {
+        
         fetchPosts(page);
     }, [page]);
 

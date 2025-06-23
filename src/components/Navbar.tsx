@@ -84,7 +84,7 @@ function Navbar() {
                             sx={{ display: { xs: 'block', md: 'none' } }}
                         >
                             <MenuItem onClick={handleCloseNavMenu} component={Link} to={`/`}>
-                                Home
+                                Timeline
                             </MenuItem>
                             <MenuItem onClick={handleCloseNavMenu} component={Link} to={`/`}>
                                 Murmur

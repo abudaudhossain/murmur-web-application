@@ -26,6 +26,8 @@ interface MurmurCardProps {
   likes: any[]; // you can be more specific if you have user info
   isLiked: boolean;
   onLikeToggle: (postId: number, liked: boolean) => void;
+  onDelete: (postId: number) => void;
+  isOwner?: boolean;
 }
 
 export default function MurmurCard({
@@ -35,12 +37,23 @@ export default function MurmurCard({
   media,
   likes = [],
   isLiked,
-  onLikeToggle
+  onLikeToggle,
+  isOwner = false,
+  onDelete = () => { }
 }: MurmurCardProps) {
   return (
     <Card sx={{ mb: 2, borderRadius: 3 }}>
       <CardHeader
         avatar={<Avatar src={user?.avatar} />}
+        action={
+          isOwner && (
+            <IconButton onClick={() => onDelete(id)}>
+              <Typography fontSize={14} color="error">
+                Delete
+              </Typography>
+            </IconButton>
+          )
+        }
         title={
           <Typography fontWeight="bold" variant="body1">
             {user?.name}
@@ -48,7 +61,7 @@ export default function MurmurCard({
         }
         subheader={
           <Typography color="text.secondary" variant="body2">
-            {user?.username}
+            @{user?.username}
           </Typography>
         }
         sx={{ pb: 0 }}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Avatar,
@@ -7,6 +7,9 @@ import {
   Paper,
   Stack,
 } from '@mui/material';
+import { clientSideAxios } from '../lib/api/axios/clientSideAxios';
+import { useStore } from '../context/StoreContext';
+import { Link } from 'react-router-dom';
 
 interface FollowerCardProps {
   id: number,
@@ -29,9 +32,37 @@ export default function FollowerCard({
   followingCount,
   followersCount
 }: FollowerCardProps) {
-  const onFollowToggle = () => {
+  const [isFollow, setIsFollow] = useState(isFollowing)
+  const onFollowToggle = (id) => {
     // Handle follow/unfollow logic here
-    console.log(`${isFollowing ? 'Unfollow' : 'Follow'} ${username}`);
+    console.log(isFollowing ? handleUnFollow(id) : handleFollow(id));
+    setIsFollow(!isFollow)
+  };
+
+  const { user } = useStore();
+  const handleFollow = async (targetUserId: number) => {
+    try {
+      await clientSideAxios.post(`/follow/${targetUserId}`, {}, {
+        headers: {
+          Authorization: `Bearer ${user?.accessToken}`,
+        }
+      });
+
+    } catch (err) {
+      console.error("Follow failed:", err);
+    }
+  };
+  const handleUnFollow = async (targetUserId: number) => {
+    try {
+      await clientSideAxios.delete(`/follow/${targetUserId}`, {
+        headers: {
+          Authorization: `Bearer ${user?.accessToken}`,
+        }
+      });
+
+    } catch (err) {
+      console.error("Follow failed:", err);
+    }
   };
   return (
     <Paper
@@ -47,14 +78,18 @@ export default function FollowerCard({
         <Avatar src={avatar} alt={name} sx={{ width: 50, height: 50 }} />
 
         <Box flex={1}>
-          <Typography variant="subtitle1" fontWeight="bold">
+          <Typography
+            component={Link}
+            to={`/user/${id}`}
+            variant="subtitle1"
+            fontWeight="bold">
             {name}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {username}
           </Typography>
 
-          <Typography variant="body2" sx={{ mt: 0.5 }}  color="text.secondary">
+          <Typography variant="body2" sx={{ mt: 0.5 }} color="text.secondary">
             <span>follower: {followersCount}  </span>
             <span>following: {followingCount}  </span>
           </Typography>
@@ -62,12 +97,12 @@ export default function FollowerCard({
         </Box>
 
         <Button
-          variant={isFollowing ? 'outlined' : 'contained'}
+          variant={isFollow ? 'outlined' : 'contained'}
           size="small"
-          onClick={onFollowToggle}
+          onClick={() => onFollowToggle(id)}
           sx={{ textTransform: 'none', minWidth: 90, mt: 0.5 }}
         >
-          {isFollowing ? 'Following' : 'Follow'}
+          {isFollow ? 'Following' : 'Follow'}
         </Button>
       </Stack>
     </Paper>

@@ -6,24 +6,24 @@ import {
   Button,
 } from '@mui/material';
 
-const Follower = () => {
-  const [followers, setFollowers] = useState<any[]>([]);
+const Following = () => {
+  const [followings, setFollowings] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const { user } = useStore();
   const fetchNewUsers = async (pageNumber) => {
     try {
-      const res = await clientSideAxios.get(`follow/followers?page=${pageNumber}&limit=1`, {
+      const res = await clientSideAxios.get(`follow/following?page=${pageNumber}&limit=10`, {
         headers: {
           Authorization: `Bearer ${user?.accessToken}`
         }
-      }); // your endpoint
+      }); 
 
 
-      const newFollowers = res.data.followers;
-
-      setFollowers(prev => [...prev, ...newFollowers]);
+      const newFollowings = res.data.following;
+      
+      setFollowings(prev => [...prev, ...newFollowings]);
       setHasMore(res.data.totalPages > page)
 
     } catch (err) {
@@ -47,7 +47,7 @@ const Follower = () => {
   return <>
 
     {
-      followers.map((follower, i) => <FollowerCard
+      followings.map((follower, i) => <FollowerCard
         key={i}
         id={follower.id}
         name={follower.name}
@@ -78,4 +78,4 @@ const Follower = () => {
   </>
 }
 
-export default Follower
+export default Following

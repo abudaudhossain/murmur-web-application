@@ -124,8 +124,8 @@ export default function RightBar() {
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={user.name}
-                                    secondary={`@${user.username}`}
-                                    primaryTypographyProps={{ fontWeight: 'medium' }}
+                                    secondary={`@${user.name.toLowerCase().replace(/\s+/g, '')}`}
+                                    
                                 />
                             </ListItem>
                         ))}
