@@ -6,10 +6,13 @@ import {
   Button,
   Paper,
   Stack,
+  Dialog, DialogTitle, DialogContent
 } from '@mui/material';
 import { clientSideAxios } from '../lib/api/axios/clientSideAxios';
 import { useStore } from '../context/StoreContext';
 import { Link } from 'react-router-dom';
+import ProfileDetails from './ProfileDetails';
+import UserMurmur from './UserMurmur';
 
 interface FollowerCardProps {
   id: number,
@@ -32,6 +35,7 @@ export default function FollowerCard({
   followingCount,
   followersCount
 }: FollowerCardProps) {
+  const [openDetails, setOpenDetails] = React.useState(false);
   const [isFollow, setIsFollow] = useState(isFollowing)
   const onFollowToggle = (id) => {
     // Handle follow/unfollow logic here
@@ -65,46 +69,69 @@ export default function FollowerCard({
     }
   };
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 2,
-        mb: 2,
-        borderRadius: 3,
-        border: '1px solid #e0e0e0',
-      }}
-    >
-      <Stack direction="row" spacing={2} alignItems="flex-start">
-        <Avatar src={avatar} alt={name} sx={{ width: 50, height: 50 }} />
+    <>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 2,
+          borderRadius: 3,
+          border: '1px solid #e0e0e0',
+        }}
+      >
+        <Stack direction="row" spacing={2} alignItems="flex-start">
+          <Avatar src={avatar} alt={name} sx={{ width: 50, height: 50 }} />
 
-        <Box flex={1}>
-          <Typography
-            component={Link}
-            to={`/user/${id}`}
-            variant="subtitle1"
-            fontWeight="bold">
-            {name}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {username}
-          </Typography>
+          <Box flex={1}>
+            <Typography
+              sx={{ cursor: 'pointer' }}
+              onClick={() => setOpenDetails(true)}
+              variant="subtitle1"
+              fontWeight="bold">
+              {name}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {username}
+            </Typography>
 
-          <Typography variant="body2" sx={{ mt: 0.5 }} color="text.secondary">
-            <span>follower: {followersCount}  </span>
-            <span>following: {followingCount}  </span>
-          </Typography>
+            <Typography variant="body2" sx={{ mt: 0.5 }} color="text.secondary">
+              <span>follower: {followersCount}  </span>
+              <span>following: {followingCount}  </span>
+            </Typography>
 
-        </Box>
+          </Box>
 
-        <Button
-          variant={isFollow ? 'outlined' : 'contained'}
-          size="small"
-          onClick={() => onFollowToggle(id)}
-          sx={{ textTransform: 'none', minWidth: 90, mt: 0.5 }}
-        >
-          {isFollow ? 'Following' : 'Follow'}
-        </Button>
-      </Stack>
-    </Paper>
+          <Button
+            variant={isFollow ? 'outlined' : 'contained'}
+            size="small"
+            onClick={() => onFollowToggle(id)}
+            sx={{ textTransform: 'none', minWidth: 90, mt: 0.5 }}
+          >
+            {isFollow ? 'Following' : 'Follow'}
+          </Button>
+        </Stack>
+      </Paper>
+      <Dialog open={openDetails} onClose={() => setOpenDetails(false)}>
+        {/* <DialogTitle>User Details</DialogTitle> */}
+        <DialogContent >
+          <ProfileDetails
+            coverImage=""
+            avatar="https://i.pravatar.cc/150?img=18"
+            name={name || ""}
+            username={username}
+            bio={'user bio'}
+            location="Poland"
+            joinDate="March 2024"
+            followers={followersCount}
+            following={followingCount}
+            isFollowing={isFollow}
+            isCurrentUser={false}
+            onEditOrFollow={() => onFollowToggle(id)}
+          />
+          <UserMurmur id={id} />
+        </DialogContent>
+      </Dialog>
+
+    </>
   );
 }

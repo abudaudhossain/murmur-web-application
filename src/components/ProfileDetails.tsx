@@ -21,6 +21,7 @@ interface ProfileDetailsProps {
   followers: number;
   following: number;
   isCurrentUser?: boolean;
+  isFollowing?: boolean;
   onEditOrFollow?: () => void;
 }
 
@@ -36,6 +37,7 @@ export default function ProfileDetails({
   following,
   isCurrentUser = false,
   onEditOrFollow,
+  isFollowing = false
 }: ProfileDetailsProps) {
   return (
     <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
@@ -75,7 +77,7 @@ export default function ProfileDetails({
             onClick={onEditOrFollow}
             sx={{ textTransform: 'none', borderRadius: 5 }}
           >
-            {isCurrentUser ? 'Edit Profile' : 'Follow'}
+            {isCurrentUser ? 'Edit Profile' : isFollowing ? 'Following': 'Follow'}
           </Button>
         </Box>
 

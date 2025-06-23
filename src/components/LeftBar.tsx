@@ -30,7 +30,7 @@ const LeftBar = () => {
         <ListItemIcon>
           <HomeIcon />
         </ListItemIcon>
-        <ListItemText primary="Home" />
+        <ListItemText primary="Timeline" />
       </ListItemButton>
 
       {/* <ListItemButton component={Link} to="/feed">
